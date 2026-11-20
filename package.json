@@ -1,0 +1,14 @@
+{
+  "name": "audit-evidence-packs",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Audit evidence pack workbench: per-metric/report snapshot, transform, quality, permission and publish evidence with gap detection, deterministic checksums and download auditing.",
+  "type": "module",
+  "engines": { "node": ">=22.5" },
+  "scripts": {
+    "start": "node src/server.js",
+    "seed": "node src/seed.js",
+    "pack": "node src/cli.js",
+    "test": "node test/run.js"
+  }
+}

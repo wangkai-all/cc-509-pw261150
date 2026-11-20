@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Audit evidence workbench</title>
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-mark" aria-hidden="true"></span>
+    <div>
+      <h1>Audit evidence workbench</h1>
+      <p class="sub">Snapshot · transform · quality · permission · publish evidence, sealed per metric or report.</p>
+    </div>
+  </div>
+  <div class="identity">
+    <label for="principal">Acting as</label>
+    <select id="principal" aria-label="Acting principal"></select>
+    <span class="keychip" id="keychip" title="API key suffix"></span>
+  </div>
+</header>
+
+<main>
+  <section class="panel" aria-labelledby="scope-title">
+    <div class="panel-head">
+      <h2 id="scope-title">Scope</h2>
+      <p class="hint">Pick a metric or report and one of its captured snapshots. A repeat build for the same snapshot reproduces the same root checksum.</p>
+    </div>
+    <form id="scope-form" class="scope-grid">
+      <label>Subject
+        <select id="subject" required></select>
+      </label>
+      <label>Snapshot
+        <select id="snapshot" required></select>
+      </label>
+      <label>Evidence as of
+        <input id="as-of" type="datetime-local" required>
+      </label>
+      <label class="check"><input id="redacted" type="checkbox"> Redact identifiers</label>
+      <div class="actions">
+        <button type="submit" class="primary" id="build">Build evidence pack</button>
+        <button type="button" id="step" title="Collect exactly one dimension">Collect next step</button>
+      </div>
+    </form>
+    <div id="footprint" class="footprint" aria-live="polite"></div>
+  </section>
+
+  <section class="panel" id="run-panel" hidden aria-labelledby="run-title">
+    <div class="panel-head">
+      <h2 id="run-title">Collection</h2>
+      <div class="run-meta" id="run-meta"></div>
+    </div>
+    <div class="meter-wrap">
+      <div class="meter" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="Collection progress" id="meter">
+        <span class="meter-fill" id="meter-fill" style="width:0%"></span>
+      </div>
+      <div class="meter-legend">
+        <span id="progress-text">0 of 0 sources</span>
+        <span class="seg-legend">
+          <span class="key good"><i></i>Collected</span>
+          <span class="key critical"><i></i>Gap</span>
+          <span class="key muted"><i></i>Pending</span>
+        </span>
+      </div>
+    </div>
+    <ol class="stages" id="stages"></ol>
+    <div class="run-actions">
+      <button type="button" id="interrupt">Interrupt</button>
+      <button type="button" id="resume" class="primary">Resume</button>
+      <button type="button" id="download" class="primary">Download pack</button>
+      <button type="button" id="verify">Verify checksums</button>
+    </div>
+    <div id="verify-out" class="verify-out" aria-live="polite" hidden></div>
+  </section>
+
+  <section class="panel" id="kpi-panel" hidden aria-labelledby="kpi-title">
+    <div class="panel-head">
+      <h2 id="kpi-title">Evidence summary</h2>
+      <p class="hint">A pack is only <strong>complete</strong> when every required source resolved. Missing sources are named below — they are never silently empty.</p>
+    </div>
+    <div class="kpis" id="kpis"></div>
+  </section>
+
+  <section class="panel" id="gaps-panel" hidden aria-labelledby="gaps-title">
+    <div class="panel-head">
+      <h2 id="gaps-title">Gaps</h2>
+      <p class="hint">Blocking gaps make the pack incomplete; advisory gaps are disclosed but do not block.</p>
+    </div>
+    <div id="gaps" class="gaps"></div>
+  </section>
+
+  <section class="panel" id="hash-panel" hidden aria-labelledby="hash-title">
+    <div class="panel-head">
+      <h2 id="hash-title">Checksums</h2>
+      <p class="hint">Root hash is SHA-256 over the canonical manifest (object keys sorted). Per-file hashes cover the exact bytes in the archive.</p>
+    </div>
+    <div class="root-hash" id="root-hash"></div>
+    <table class="data">
+      <caption class="sr-only">Artifact checksums</caption>
+      <thead><tr><th scope="col">Artifact</th><th scope="col">Records</th><th scope="col">Bytes</th><th scope="col">SHA-256</th></tr></thead>
+      <tbody id="artifacts"></tbody>
+    </table>
+  </section>
+
+  <section class="panel" id="downloads-panel" hidden aria-labelledby="downloads-title">
+    <div class="panel-head">
+      <h2 id="downloads-title">Download audit</h2>
+      <p class="hint">Every attempt — allowed or denied — is recorded with the acting principal, role and reason.</p>
+    </div>
+    <table class="data">
+      <caption class="sr-only">Download audit trail</caption>
+      <thead><tr><th scope="col">When</th><th scope="col">Principal</th><th scope="col">Role</th><th scope="col">Action</th><th scope="col">Result</th><th scope="col">Bytes</th><th scope="col">Detail</th></tr></thead>
+      <tbody id="downloads"></tbody>
+    </table>
+  </section>
+
+  <section class="panel" id="recent-panel" aria-labelledby="recent-title">
+    <div class="panel-head">
+      <h2 id="recent-title">Recent packs</h2>
+      <button type="button" class="ghost" id="refresh-recent">Refresh</button>
+    </div>
+    <table class="data">
+      <caption class="sr-only">Recently built evidence packs</caption>
+      <thead><tr><th scope="col">Subject</th><th scope="col">Snapshot</th><th scope="col">Status</th><th scope="col">Gaps</th><th scope="col">Root hash</th><th scope="col">Built</th><th scope="col"></th></tr></thead>
+      <tbody id="recent"></tbody>
+    </table>
+  </section>
+</main>
+
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+<script type="module" src="/app.js"></script>
+</body>
+</html>
